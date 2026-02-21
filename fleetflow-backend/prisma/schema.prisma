@@ -1,5 +1,8 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // native: for your local Windows machine
+  // rhel-openssl-3.0.x: for Vercel's serverless environment
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -7,7 +10,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Role-Based Access Control (RBAC) - Page 1 [cite: 12]
+// --- Rest of your schema remains exactly as you wrote it ---
+
+// Role-Based Access Control (RBAC) - Page 1
 enum Role {
   ADMIN
   FLEET_MANAGER
@@ -26,7 +31,7 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-// Asset Management Status - Page 3 [cite: 24, 32]
+// Asset Management Status - Page 3
 enum VehicleStatus {
   AVAILABLE
   ON_TRIP
@@ -44,9 +49,9 @@ enum FuelType {
 model Vehicle {
   id                 String           @id @default(cuid())
   model              String
-  licensePlate       String           @unique // Unique ID [cite: 23]
-  acquisitionCost    Float            // Needed for ROI 
-  capacityKg         Float            // Max Load Capacity [cite: 23]
+  licensePlate       String           @unique
+  acquisitionCost    Float            
+  capacityKg         Float            
   odometerKm         Float            @default(0)
   insuranceExpiry    DateTime
   registrationExpiry DateTime
@@ -59,7 +64,7 @@ model Vehicle {
   updatedAt          DateTime         @updatedAt
 }
 
-// Driver Performance & Compliance - Page 7 [cite: 37, 39, 41]
+// Driver Performance & Compliance - Page 7
 enum DriverStatus {
   ON_DUTY
   OFF_DUTY
@@ -71,18 +76,18 @@ model Driver {
   id                 String       @id @default(cuid())
   name               String
   licenseNumber      String       @unique
-  licenseExpiry      DateTime     // Blocks assignment if expired [cite: 39]
-  licenseCategory    String       // e.g., "Van", "Truck" [cite: 49]
+  licenseExpiry      DateTime     
+  licenseCategory    String       
   status             DriverStatus @default(ON_DUTY)
   contactInfo        String
-  safetyScore        Float        @default(100.0) // Page 7 
-  tripCompletionRate Float        @default(0.0)   // Page 7 
+  safetyScore        Float        @default(100.0) 
+  tripCompletionRate Float        @default(0.0)   
   trips              Trip[]
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 }
 
-// Trip Workflow - Page 4 [cite: 25, 29]
+// Trip Workflow - Page 4
 enum TripStatus {
   DRAFT
   DISPATCHED
@@ -96,10 +101,10 @@ model Trip {
   origin               String
   destination          String
   distanceKm           Float
-  cargoWeightKg        Float      // Validation: Weight < Capacity [cite: 28]
-  revenue              Float      // Needed for ROI 
+  cargoWeightKg        Float      
+  revenue              Float      
   expectedDeliveryTime DateTime
-  finalOdometer        Float?     // Entered during Completion 
+  finalOdometer        Float?     
   status               TripStatus @default(DRAFT)
   vehicleId            String
   vehicle              Vehicle    @relation(fields: [vehicleId], references: [id])
@@ -109,7 +114,7 @@ model Trip {
   updatedAt            DateTime   @updatedAt
 }
 
-// Maintenance Health Tracking - Page 5 [cite: 30, 31]
+// Maintenance Health Tracking - Page 5
 enum ServiceType {
   PREVENTIVE
   BREAKDOWN
@@ -119,17 +124,17 @@ enum ServiceType {
 model MaintenanceLog {
   id             String      @id @default(cuid())
   serviceType    ServiceType
-  description    String?     // Specific health tracking 
+  description    String?     
   cost           Float
   serviceDate    DateTime    @default(now())
-  nextServiceDue DateTime    // Changed to DateTime for scheduling [cite: 5]
+  nextServiceDue DateTime    
   vendorName     String
   vehicleId      String
   vehicle        Vehicle     @relation(fields: [vehicleId], references: [id])
   createdAt      DateTime    @default(now())
 }
 
-// Financial Performance - Page 6 [cite: 33, 36]
+// Financial Performance - Page 6
 model FuelLog {
   id          String   @id @default(cuid())
   fuelLiters  Float

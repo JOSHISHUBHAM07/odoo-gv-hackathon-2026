@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "seed": "node prisma/seed.js",
-    "postinstall": "prisma generate",
-    "build": "prisma generate"
+    "postinstall": "npx prisma generate",
+    "build": "npx prisma generate"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
